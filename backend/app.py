@@ -15,8 +15,25 @@ def create_app():
 
     db.init_app(app)
     JWTManager(app)
-    CORS(app, resources={r"/api/*": {"origins": app.config['CORS_ORIGINS']}},
-         supports_credentials=True)
+    CORS(app,
+         origins=app.config['CORS_ORIGINS'],
+         supports_credentials=True,
+         allow_headers=['Content-Type', 'Authorization'],
+         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'])
+
+    @app.before_request
+    def handle_options():
+        from flask import request, make_response
+        if request.method == 'OPTIONS':
+            origin = request.headers.get('Origin', '')
+            if origin in app.config['CORS_ORIGINS']:
+                res = make_response()
+                res.headers['Access-Control-Allow-Origin'] = origin
+                res.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS, PATCH'
+                res.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+                res.headers['Access-Control-Allow-Credentials'] = 'true'
+                res.headers['Access-Control-Max-Age'] = '86400'
+                return res
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')

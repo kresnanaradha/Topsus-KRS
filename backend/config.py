@@ -24,7 +24,8 @@ class Config:
     UPSTASH_REDIS_REST_URL = os.getenv('UPSTASH_REDIS_REST_URL', '')
     UPSTASH_REDIS_REST_TOKEN = os.getenv('UPSTASH_REDIS_REST_TOKEN', '')
 
-    CORS_ORIGINS = os.getenv(
-        'CORS_ORIGINS',
-        'http://localhost:5173,http://localhost:3000'
-    ).split(',')
+    CORS_ORIGINS = [
+        o.strip()
+        for o in os.getenv('CORS_ORIGINS', 'http://localhost:5173,http://localhost:3000').split(',')
+        if o.strip()
+    ]
